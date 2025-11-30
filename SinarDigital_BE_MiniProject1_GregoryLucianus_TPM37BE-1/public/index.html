@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Bookmark App</title>
+  </head>
+  <body>
+    <h1>Bookmark Maker</h1>
+
+    <form id="bookmarkMaker">
+      <label>Title :</label>
+      <input type="text" name="title" />
+      <br />
+
+      <label>Page :</label>
+      <input type="number" name="page" />
+      <br />
+
+      <label>Color :</label>
+      <input type="text" name="color" />
+      <br />
+
+      <label>Notes :</label>
+      <textarea name="notes"></textarea>
+      <br />
+
+      <button type="submit">Add Bookmark</button>
+    </form>
+    <hr />
+
+    <button id="loadBookmarks">Load All Bookmarks</button>
+
+    <div id="bookmarkList"></div>
+
+    <script>
+      const form = document.getElementById("bookmarkMaker");
+      const listDiv = document.getElementById("bookmarkList");
+      const loadBtn = document.getElementById("loadBookmarks");
+
+      // CREATE bookmark
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        const body = Object.fromEntries(formData.entries());
+
+        const res = await fetch("/api/bookmarks", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+
+        const data = await res.json();
+
+        alert("Bookmark added!");
+        form.reset();
+      });
+
+      // LOAD ALL bookmarks
+      loadBtn.addEventListener("click", async () => {
+        const res = await fetch("/api/bookmarks");
+        const json = await res.json();
+
+        listDiv.innerHTML = ""; // Clear first
+
+        json.data.forEach((b) => {
+          const div = document.createElement("div");
+          div.innerHTML = `
+          <p>ID: ${b.id}</p>
+          <p>Title: ${b.title}</p>
+          <p>Page: ${b.page}</p>
+          <p>Color: ${b.color}</p>
+          <p>Notes: ${b.notes}</p>
+          <hr />
+        `;
+          listDiv.appendChild(div);
+        });
+      });
+    </script>
+  </body>
+</html>
